@@ -1,110 +1,128 @@
-[![NPM][npm]][npm-url]
-[![Deps][deps]][deps-url]
-[![Tests][build]][build-url]
-[![Coverage][cover]][cover-url]
-[![Standard Code Style][style]][style-url]
-[![Chat][chat]][chat-badge]
+[![npm][npm]][npm-url]
+[![node][node]][node-url]
+[![deps][deps]][deps-url]
+[![tests][tests]][tests-url]
+[![coverage][cover]][cover-url]
+[![code style][style]][style-url]
+[![chat][chat]][chat-url]
 
-# PostHTML Loader <img align="right" width="200" height="220" title="PostHTML logo" src="http://posthtml.github.io/posthtml/logo.svg">
+<div align="center">
+  <a href="https://github.com/posthtml/posthtml">
+    <img width="220" height="200" title="PosHTML"           src="http://posthtml.github.io/posthtml/logo.svg">
+  </a>
+  <img width="200" height="200" src="https://webpack.js.org/assets/icon-square-big.svg">
+  <h1>PostHTML Loader</h1>
+</div>
 
-## Install
+<h2 align="center">Install</h2>
 
-```sh
+```bash
 npm i -D html-loader posthtml-loader
 ```
 
-## Usage
-
-The posthtml loader must be used with at least one other loader in order to integrate with webpack correctly. For most use cases, the [html-loader](https://github.com/webpack/html-loader) is recommended. If you want to export the html string directly for use in javascript or webpack plugins, we recommend the [source-loader](https://github.com/static-dev/source-loader). Whichever loader you choose, it should be the first loader, followed by posthtml, as you will see in the examples below.
-
-Options can be passed through a `posthtml` option directly on the webpack config object. It accepts an array, an object, or a function that returns an array or object. If it's an array, it should contain plugins. If it's an object, it can contain a `plugins` key, which is an array of plugins and an optional `parser` key which allows you to pass in a custom parser. Any other key will apply to the `pack` querystring parameter, documented below.
-
-Basic configuration example:
+<h2 align="center">Usage</h2>
 
 ```js
-// webpack.config.js
+import html from './file.html'
+```
+**webpack.config.js**
+```js
 module: {
-  loaders: [{
-    test: /\.html$/,
-    loader: 'html!posthtml'
-  }]
+  rules: [
+    {
+      test: /\.html$/,
+      use: [
+        {
+          loader: 'posthtml-loader',
+          options: { plugins: [ /* PostHTML Plugins */ ] }
+        }
+      ]
+    }
+  ]
 },
-posthtml: [/* plugins here */]
 ```
 
-## Options
+<h2 align="center">Options</h2>
 
-### Plugin Packages
+### Options
 
-If you need to apply different sets of plugins to different groups of files, you can use a **plugin pack**. Just add `pack=[name]` as a querystring option, and return an object from the `posthtml` config option with a key matching the pack name, and the value being an array of plugins.
+If you want to use a custom parser, you can pass it in under the `parser` key or as query string in the loader. Below is an example with [SugarML](https://github.com/posthtml/sugarml):
 
+**webpack.config.js**
 ```js
-// webpack.config.js
 module: {
-  loaders: [{
-    test: /\\.special\.html$/,
-    loader: 'html!posthtml?pack=special'
-  }]
-},
-posthtml: {
-  plugins: [/* plugins that apply anything that's not using a pack */],
-  special: [ /* plugins specific to the "special" pack */ ],
+  rules: [
+    {
+      test: /\.ssml$/,
+      use: [
+        {
+          loader: 'posthtml-loader',
+          options: { parser: require('posthtml-sugarml')() }
+        }
+      ]
+    }
+  ]
 }
 ```
 
-### Custom Parser
+### Plugins
 
-If you want to use a custom parser, you can pass it in under the `parser` key or as query string in the loader. Below is an example with the [sugarml parser](https://github.com/posthtml/sugarml):
-
+**webpack.config.js**
 ```js
-// webpack.config.js
-const sugarml = require('sugarml')
-
 module: {
-  loaders: [{
-    test: /\\.special\.html$/,
-    loader: 'html!posthtml'
-  }]
-},
-posthtml: {
-  plugins: [/* posthtml plugins */],
-  parser: sugarml
+  rules: [
+    {
+      test: /\.html$/,
+      use: [
+        'html-loader',
+        {
+          loader: 'posthtml-loader',
+          options: {
+            plugins: () => [
+              require('posthtml-plugin')()
+            ]
+          }
+        }
+      ]
+    }
+  ]
 }
 ```
 
-```js
-// webpack.config.js
-const sugarml = require('sugarml')
+### Config
 
+**webpack.config.js**
+```js
 module: {
-  loaders: [{
-    test: /\\.special\.html$/,
-    loader: 'html!posthtml?parser=sugarml'
-  }]
-},
-posthtml: {
-  plugins: [/* posthtml plugins */]
+  rules: [
+    {
+      test: /\.html$/,
+      use: [
+        {
+          loader: 'posthtml-loader',
+          options: {
+            config: { path: 'path/to/posthtml.config.js', context: {} }
+          }
+        }
+      ]
+    }
+  ]
 }
 ```
 
-### Using a Function
-
-You can also return a function from the `posthtml` config value, if you need to for any reason. The function passes along the [loader context](https://webpack.github.io/docs/loaders.html#loader-context) as an argument, so you can get information about the file currently being processed from this and pass it to plugins if needed. For example:
-
+**posthtml.config.js**
 ```js
-// webpack.config.js
-module: {
-  loaders: [{
-    test: /\.html$/,
-    loader: 'html!posthtml'
-  }]
-},
-posthtml: (ctx) => {
-  return [ plugin({ filename: ctx.resourcePath })]
-}
+module.exports = ({ file, options, env }) => ({
+  parser: 'posthttml-sugarml'
+  plugins: {
+    'posthtml-include': options.include
+    'posthtml-content': options.content
+    'htmlnano': env === 'production' ? {} : false
+  }
+})
 ```
 
-## Maintainers
+<h2 align="center">Maintainer</h2>
 
 <table>
   <tbody>
@@ -115,6 +133,15 @@ posthtml: (ctx) => {
         <br />
         <a href="https://github.com/michael-ciniawsky">Michael Ciniawsky</a>
       </td>
+    </tr>
+  <tbody>
+</table>
+
+<h2 align="center">Contributors</h2>
+
+<table>
+  <tbody>
+    <tr>
       <td align="center">
         <img width="150 height="150"
         src="https://avatars.githubusercontent.com/u/556932?v=3&s=150">
@@ -130,28 +157,24 @@ posthtml: (ctx) => {
   <tbody>
 </table>
 
-## Contributing
-
-See [PostHTML Guidelines](https://github.com/posthtml/posthtml/tree/master/docs) and [CONTRIBUTING](CONTRIBUTING.md).
-
-## LICENSE
-
-[MIT](LICENSE)
 
 [npm]: https://img.shields.io/npm/v/posthtml-loader.svg
 [npm-url]: https://npmjs.com/package/posthtml-loader
 
+[node]: https://img.shields.io/node/v/posthtml-loader.svg
+[node-url]: https://nodejs.org/
+
 [deps]: https://david-dm.org/posthtml/posthtml-loader.svg
 [deps-url]: https://david-dm.org/posthtml/posthtml-loader
 
-[build]: http://img.shields.io/travis/posthtml/posthtml-loader.svg
-[build-url]: https://travis-ci.org/posthtml/posthtml-loader
+[tests]: http://img.shields.io/travis/posthtml/posthtml-loader.svg
+[tests-url]: https://travis-ci.org/posthtml/posthtml-loader
 
-[cover]: https://coveralls.io/repos/github/posthtml/posthtml-loader/badge.svg?branch=master
-[cover-url]: https://coveralls.io/github/posthtml/posthtml-loader?branch=master
+[cover]: https://coveralls.io/repos/github/posthtml/posthtml-loader/badge.svg
+[cover-url]: https://coveralls.io/github/posthtml/posthtml-loader
 
 [style]: https://img.shields.io/badge/code%20style-standard-yellow.svg
 [style-url]: http://standardjs.com/
 
 [chat]: https://badges.gitter.im/posthtml/posthtml.svg
-[chat-badge]: https://gitter.im/posthtml/posthtml?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"
+[chat-url]: https://gitter.im/posthtml/posthtml
