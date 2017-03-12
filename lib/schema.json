@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "config": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "ctx": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "parser": {
+      "type": "string",
+      "description": "PostHTML Parser"
+    },
+    "render": {
+      "type": "string",
+      "description": "PostHTML Renderer"
+    },
+    "plugins": {
+      "type": "array"
+    },
+    "template": {
+      "type": [ "boolean", "string" ]
+    }
+  },
+  "additionalProperties": false
+}
