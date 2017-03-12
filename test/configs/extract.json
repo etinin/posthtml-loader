@@ -1,0 +1,10 @@
+{
+  "file": "extract",
+  "options": {
+    "config": {
+      "path": "test/fixtures/config/posthtml.config.js",
+      "ctx": { "plugin": false }
+    }
+  },
+  "extract": true
+}

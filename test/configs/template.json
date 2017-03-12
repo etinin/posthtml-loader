@@ -1,0 +1,7 @@
+{
+  "file": "template",
+  "options": {
+    "parser": "posthtml-sugarml",
+    "template": "_"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "file": "render",
+  "options": {
+    "render": "posthtml-render"
+  }
+}
