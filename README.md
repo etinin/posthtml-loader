@@ -34,7 +34,11 @@ module: {
       use: [
         {
           loader: 'posthtml-loader',
-          options: { plugins: [ /* PostHTML Plugins */ ] }
+          options: {
+            parser: 'PostHTML Parser'
+            plugins: [ /* PostHTML Plugins */ ]
+            template: true
+          }
         }
       ]
     }
@@ -44,9 +48,17 @@ module: {
 
 <h2 align="center">Options</h2>
 
-### Options
+|Name|Type|Default|Description|
+|:--:|:--:|:-----:|:----------|
+|`parser`|`{String/Function}`|`undefined`|PostHTML Parser|
+|`render`|`{String/Function}`|`undefined`|PostHTML Render|
+|`config`|`{Object}`|`undefined`|PostHTML Config `posthtml.config.js`|
+|`plugins`|`{Array/Function}`|`[]`|PostHTML Plugins|
+|`template` |`{Boolean/String}`|`false`|Export HTML Template `{Function}`|
 
-If you want to use a custom parser, you can pass it in under the `parser` key or as query string in the loader. Below is an example with [SugarML](https://github.com/posthtml/sugarml):
+### Parser
+
+If you want to use a custom parser, you can pass it in under the `parser` key  in the loader options e.g [SugarML](https://github.com/posthtml/sugarml)
 
 **webpack.config.js**
 ```js
@@ -57,7 +69,7 @@ module: {
       use: [
         {
           loader: 'posthtml-loader',
-          options: { parser: require('posthtml-sugarml')() }
+          options: { parser: 'posthtml-sugarml' }
         }
       ]
     }
@@ -66,6 +78,8 @@ module: {
 ```
 
 ### Plugins
+
+Plugins are specified under the `plugins` key in the loader options
 
 **webpack.config.js**
 ```js
@@ -91,22 +105,70 @@ module: {
 
 ### Config
 
+If you want to use are shareable config file instead of inline options in your `webpack.config.js` create a `posthtml.config.js` file and placed it somewhere down the file tree in your project. The nearest config relative to `dirname(file)` currently processed by the loader applies. This enables **Config Cascading**. Despite some edge cases the config file will be loaded automatically and **no** additional setup is required. If you don't intend to use Config Cascading, it's recommended to place `posthtml.config.js` in the **Root** `./` of your project
+
+```
+|– src
+|   |– components
+|   |   |– component.html
+|   |   |– posthtml.config.js (components)
+|   |– index.html
+|
+|– posthtml.config.js (index)
+|– webpack.config.js
+```
+
+[**posthtml.config.js**](https://github.com/posthtml/posthtml-load-config)
+```js
+module.exports = ({ file, options, env }) => ({
+  parser: 'posthttml-sugarml'
+  plugins: {
+    'posthtml-include': options.include
+    'posthtml-content': options.content
+    'htmlnano': env === 'production' ? {} : false
+  }
+})
+```
+
 **webpack.config.js**
 ```js
-module: {
-  rules: [
-    {
-      test: /\.html$/,
-      use: [
-        {
-          loader: 'posthtml-loader',
-          options: {
-            config: { path: 'path/to/posthtml.config.js', context: {} }
-          }
-        }
-      ]
+{
+  loader: 'posthtml-loader',
+}
+```
+
+#### Path
+
+If you normally place all your config files in a separate folder e.g './config' it is nessescary to explicitly set the config path in `webpack.config.js`
+
+**webpack.config.js**
+```js
+{
+  loader: 'posthtml-loader',
+  options: {
+    config: { path: 'path/to/posthtml.config.js' }
+  }
+}
+```
+
+#### Context
+
+|Name|Type|Default|Description|
+|:--:|:--:|:-----:|:----------|
+|`env`|`{String}`|`'development'`|process.env.NODE_ENV|
+|`file`|`{Object}`|`dirname, basename, extname`|File|
+|`options`|`{Object}`|`{}`|Plugin Options (Context)|
+
+**webpack.config.js**
+```js
+{
+  loader: 'posthtml-loader',
+  options: {
+    ctx: {
+      include: {...options}
+      content: {...options}
     }
-  ]
+  }
 }
 ```
 
@@ -120,6 +182,33 @@ module.exports = ({ file, options, env }) => ({
     'htmlnano': env === 'production' ? {} : false
   }
 })
+```
+
+### Templates
+
+By setting the template option the loader will export a `{Function}` instead of a  `{String}` to enable templating via ES2015 Template Literals. By default
+locals/literals must are declared with an `_` inside your HTML Templates, it is possible to override the selctor with a custom one by passing a string to the template option e.g `{ template: '$' }`
+
+**template.html**
+```html
+<div>${ _.hello }</div>
+```
+
+**webpack.config.js**
+```js
+{
+  loader: 'posthtml-loader',
+  options: {
+    template: true
+  }
+}
+```
+
+**template.js**
+```js
+import template from './template.html'
+
+document.body.innerHTML = template({ hello: 'Hello World!' })
 ```
 
 <h2 align="center">Maintainer</h2>
