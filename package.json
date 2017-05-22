@@ -30,7 +30,7 @@
     "posthtml-sugarml": "1.0.0-alpha3",
     "standard": "^9.0.1",
     "standard-version": "^4.0.0",
-    "webpack": "^2.2.1"
+    "webpack": "^2.6.0"
   },
   "standard": {
     "env": {
